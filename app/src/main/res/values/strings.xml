@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BeaconDistanceApp</string>
+    <string name="scan_in_progress">Scan is already progress</string>
+    <string name="ble_failed_app_reg">Bluetooth integration error</string>
+    <string name="ble_scan_unsupp">Scan is unsupported on this device</string>
+    <string name="ble_internal_error">Internal Bluetooth error</string>
+</resources>

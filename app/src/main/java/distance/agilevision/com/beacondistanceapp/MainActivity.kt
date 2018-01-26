@@ -8,16 +8,14 @@ import butterknife.ButterKnife
 
 class MainActivity : AppCompatActivity(), OnScan, CoordinateTracker {
     override fun onDistanceChange(i: Identifier, d: Double) {
-        mm[i]?.setText(d.toString())
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        mm[i]?.first?.setText(getString(R.string.beacon_distance, mm[i]?.second, d))
     }
-
 
     val a = Identifier("00112233445566778899", "000000000000")
     val c = Identifier("00112233445566778899", "111111111111")
     val b = Identifier("00112233445566778899", "111111000000")
 
-    var mm :Map<Identifier, TextView> = mutableMapOf()
+    var mm :Map<Identifier, Pair<TextView, String>> = mutableMapOf()
 
     @BindView(R.id.text_x) lateinit var tx: TextView
     @BindView(R.id.text_y) lateinit var ty: TextView
@@ -28,12 +26,12 @@ class MainActivity : AppCompatActivity(), OnScan, CoordinateTracker {
 
 
     override fun onCoordinateChange(x: Double, y: Double) {
-        tx.setText(x.toString())
-        ty.setText(y.toString())
+        tx.setText(getString(R.string.x_coordd, x))
+        ty.setText(getString(R.string.y_coord,y))
     }
 
     override fun startScan() {
-        error.setText("Scanning")
+        error.setText("Scan is in proggress")
     }
 
     override fun onError(description: String) {
@@ -46,9 +44,9 @@ class MainActivity : AppCompatActivity(), OnScan, CoordinateTracker {
         setContentView(R.layout.activity_main)
         ButterKnife.setDebug(BuildConfig.DEBUG)
         ButterKnife.bind(this)
-        mm += a to ba;
-        mm += b to bb;
-        mm += c to bc;
+        mm += a to Pair(ba, "A");
+        mm += b to Pair(bb, "B");
+        mm += c to Pair(bc, "C");
         tx.setText("detecting...")
         ty.setText("detecting...")
 

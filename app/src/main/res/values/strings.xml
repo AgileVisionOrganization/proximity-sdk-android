@@ -4,4 +4,7 @@
     <string name="ble_failed_app_reg">Bluetooth integration error</string>
     <string name="ble_scan_unsupp">Scan is unsupported on this device</string>
     <string name="ble_internal_error">Internal Bluetooth error</string>
+    <string name="x_coordd">X: %1$.2f</string>
+    <string name="y_coord">Y: %1$.2f</string>
+    <string name="beacon_distance">%1$s: %2$.2f</string>
 </resources>

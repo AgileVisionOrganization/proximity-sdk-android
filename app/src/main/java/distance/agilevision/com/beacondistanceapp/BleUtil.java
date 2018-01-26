@@ -151,11 +151,13 @@ public class BleUtil extends ScanCallback  {
                 if (serviceData[0] == BleUtil.EDDYSTONE_UID_FRAME_TYPE) {
                     // Extract the beacon ID from the service data. Offset 0 is the frame type, 1 is the
                     // Tx power, and the next 16 are the ID.
-                    // See https://github.com/google/eddystone/eddystone-uid for more information.
+                    // See https://github.com/google/eddystone/tree/master/eddystone-uid for more information.
                     String nameSpace = toHexString(Arrays.copyOfRange(serviceData, NID_START, NID_END));
                     String instance = toHexString(Arrays.copyOfRange(serviceData, BID_START, BID_END));
                     int txPowerLevel = serviceData[TX_POWER_OFFSET];
+
                     Double distance = calculateDistance(result.getRssi(), txPowerLevel);
+                    Log.d("BLe", "Found " + nameSpace + ": " + instance + ";" + result.getDevice().getAddress() + ";tx=" + txPowerLevel  +";rrsi"+ result.getRssi()+";distance"+ distance);
                     if (distance > 0 && distance < 200) {
                         onBeaconFound.onBeaconDistanceFound(new Identifier(nameSpace, instance), distance);
                     } else {

@@ -12,8 +12,9 @@ class MainActivity : AppCompatActivity(), OnScan, CoordinateTracker {
     }
 
     val a = Identifier("00112233445566778899", "000000000000")
-    val c = Identifier("00112233445566778899", "111111111111")
     val b = Identifier("00112233445566778899", "111111000000")
+    val c = Identifier("00112233445566778899", "111111111111")
+    val d = Identifier("00112233445566778899", "000000111111")
 
     var mm :Map<Identifier, Pair<TextView, String>> = mutableMapOf()
 
@@ -23,6 +24,7 @@ class MainActivity : AppCompatActivity(), OnScan, CoordinateTracker {
     @BindView(R.id.beacon_a) lateinit var ba: TextView
     @BindView(R.id.beacon_b) lateinit var bb: TextView
     @BindView(R.id.beacon_c) lateinit var bc: TextView
+    @BindView(R.id.beacon_d) lateinit var bd: TextView
 
 
     override fun onCoordinateChange(x: Double, y: Double) {
@@ -44,16 +46,18 @@ class MainActivity : AppCompatActivity(), OnScan, CoordinateTracker {
         setContentView(R.layout.activity_main)
         ButterKnife.setDebug(BuildConfig.DEBUG)
         ButterKnife.bind(this)
-        mm += a to Pair(ba, "A");
-        mm += b to Pair(bb, "B");
-        mm += c to Pair(bc, "C");
+        mm += a to Pair(ba, "A (AC:23:3F:23:C7:87)");
+        mm += b to Pair(bb, "B (AC:23:3F:23:C7:85)");
+        mm += c to Pair(bc, "C (AC:23:3F:23:C7:D2)");
+        mm += d to Pair(bd, "D (AC:23:3F:24:05:7D)");
         tx.setText("detecting...")
         ty.setText("detecting...")
 
         val beacons: Map<Identifier, Point> = mapOf(
                 a to Point(0.0, 0.0),
-                c to Point(1.535, 5.66),
-                b to Point(0.0, 3.07)
+                b to Point(3.07, 0.0),
+                c to Point(3.07, 5.66),
+                d to Point(0.0, 5.66)
         )
         var cc = CoordinateCalculator(this, beacons)
         val bleUtil = BleUtil(this, cc)

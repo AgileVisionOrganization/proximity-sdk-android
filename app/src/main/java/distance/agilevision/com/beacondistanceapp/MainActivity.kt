@@ -7,8 +7,8 @@ import butterknife.BindView
 import butterknife.ButterKnife
 
 class MainActivity : AppCompatActivity(), OnScan, CoordinateTracker {
-    override fun onDistanceChange(i: Identifier, d: Double) {
-        mm[i]?.first?.setText(getString(R.string.beacon_distance, mm[i]?.second, d))
+    override fun onDistanceChange(i: Identifier, current: Double, medium: Double?) {
+        mm[i]?.first?.setText(getString(R.string.beacon_distance, mm[i]?.second, current, medium))
     }
 
     val a = Identifier("00112233445566778899", "000000000000")
@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity(), OnScan, CoordinateTracker {
     val c = Identifier("00112233445566778899", "111111111111")
     val d = Identifier("00112233445566778899", "000000111111")
 
-    var mm :Map<Identifier, Pair<TextView, String>> = mutableMapOf()
+    var mm :MutableMap<Identifier, Pair<TextView, String>> = mutableMapOf()
 
     @BindView(R.id.text_x) lateinit var tx: TextView
     @BindView(R.id.text_y) lateinit var ty: TextView
@@ -46,12 +46,10 @@ class MainActivity : AppCompatActivity(), OnScan, CoordinateTracker {
         setContentView(R.layout.activity_main)
         ButterKnife.setDebug(BuildConfig.DEBUG)
         ButterKnife.bind(this)
-        mm += a to Pair(ba, "A (AC:23:3F:23:C7:87)");
-        mm += b to Pair(bb, "B (AC:23:3F:23:C7:85)");
-        mm += c to Pair(bc, "C (AC:23:3F:23:C7:D2)");
-        mm += d to Pair(bd, "D (AC:23:3F:24:05:7D)");
-        tx.setText("detecting...")
-        ty.setText("detecting...")
+        mm.put(a, Pair(ba, "A (AC:23:3F:23:C7:87)"));
+        mm.put(b, Pair(bb, "B (AC:23:3F:23:C7:85)"));
+        mm.put(c, Pair(bc, "C (AC:23:3F:23:C7:D2)"));
+        mm.put(d, Pair(bd, "D (AC:23:3F:24:05:7D)"));
 
         val beacons: Map<Identifier, Point> = mapOf(
                 a to Point(0.0, 0.0),

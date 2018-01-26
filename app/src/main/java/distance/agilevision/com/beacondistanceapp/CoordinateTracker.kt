@@ -5,5 +5,5 @@ package distance.agilevision.com.beacondistanceapp
  */
 interface CoordinateTracker {
     fun onCoordinateChange(x: Double, y: Double)
-    fun onDistanceChange(i: Identifier, d: Double)
+    fun onDistanceChange(i: Identifier, current: Double, medium: Double?)
 }

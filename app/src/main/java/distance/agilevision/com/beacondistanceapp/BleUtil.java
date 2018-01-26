@@ -137,9 +137,6 @@ public class BleUtil extends ScanCallback  {
 //        }
 //    }
 
-    public double calculateDistance(int rssi, int txPower) {
-        return  Math.pow(10d, ((double) -59 - rssi) / (10 * 2));
-    }
 
     @Override
     public void onScanResult(int callbackType, ScanResult result) {
@@ -156,13 +153,8 @@ public class BleUtil extends ScanCallback  {
                     String instance = toHexString(Arrays.copyOfRange(serviceData, BID_START, BID_END));
                     int txPowerLevel = serviceData[TX_POWER_OFFSET];
 
-                    Double distance = calculateDistance(result.getRssi(), txPowerLevel);
-                    Log.d("BLe", "Found " + nameSpace + ": " + instance + ";" + result.getDevice().getAddress() + ";tx=" + txPowerLevel  +";rrsi"+ result.getRssi()+";distance"+ distance);
-                    if (distance > 0 && distance < 200) {
-                        onBeaconFound.onBeaconDistanceFound(new Identifier(nameSpace, instance), distance);
-                    } else {
-                        Log.d("BleUtil", "Calculated invalid distance" + distance);
-                    }
+                   // Log.d("BLe", "Found " + nameSpace + ": " + instance + ";" + result.getDevice().getAddress() + ";tx=" + txPowerLevel  +";rrsi"+ result.getRssi());
+                    onBeaconFound.onBeaconDistanceFound(new Identifier(nameSpace, instance), result.getRssi());
 
                 }
             }

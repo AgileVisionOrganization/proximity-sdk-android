@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScanError,
         mm.put(c, Pair(bc, "C (AC:23:3F:23:C7:D2)"));
         mm.put(d, Pair(bd, "D (AC:23:3F:24:05:7D)"));
 
-        val cc = CoordinateCalculator.Builder()
+        val cc = CoordinateBuilder()
                 .addBeacon(a, XYPoint(0.0, 0.0))
                 .addBeacon(b, XYPoint(3.07, 0.0))
                 .addBeacon(c, XYPoint(3.07, 5.66))
@@ -61,8 +61,8 @@ class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScanError,
         ty.setText(getString(R.string.y_coord, y))
     }
 
-    override fun onError(description: String) {
-        error.setText("Error scanning: $description")
+    override fun onError(description: OnScanError.ErrorType) {
+        error.setText("Error scanning: ${description.description}")
     }
 
     override fun onDistanceChange(i: Beacon, current: Double, medium: Double) {

@@ -14,7 +14,7 @@ import org.junit.Test
  */
 class CoordinateCalculatorTest {
 
-    lateinit var cb: CoordinateCalculator.Builder;
+    lateinit var cb: CoordinateBuilder;
     val a = Beacon("00112233445566778899", "000000000000")
     val b = Beacon("00112233445566778899", "111111000000")
     val c = Beacon("00112233445566778899", "111111111111")
@@ -22,7 +22,7 @@ class CoordinateCalculatorTest {
 
     @Before
     fun createBuilder() {
-        cb = CoordinateCalculator.Builder()
+        cb = CoordinateBuilder()
                 .addBeacon(a, XYPoint(0.0, 0.0))
                 .addBeacon(b, XYPoint(3.07, 0.0))
                 .addBeacon(c, XYPoint(3.07, 5.66))

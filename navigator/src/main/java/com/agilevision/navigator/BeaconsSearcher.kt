@@ -7,7 +7,6 @@ import android.bluetooth.le.*
 import android.content.Context
 import android.content.Intent
 import android.os.ParcelUuid
-import android.util.SparseIntArray
 import java.util.*
 
 /**
@@ -16,31 +15,29 @@ import java.util.*
 class BeaconsSearcher(private val callback: OnScanError, private val onBeaconFound: BeaconsTracker) : ScanCallback() {
     protected var scanRunning = false
 
-
     private var bluetoothLeScanner: BluetoothLeScanner? = null
-    private val errorDescription = SparseIntArray()
+    private val errorDescription: Map<Int, OnScanError.ErrorType> = mapOf(
+           Pair(ScanCallback.SCAN_FAILED_ALREADY_STARTED, OnScanError.ErrorType.ALREADY_STARTED),
+           Pair(ScanCallback.SCAN_FAILED_APPLICATION_REGISTRATION_FAILED, OnScanError.ErrorType.APPLICATION_REGISTRATION_FAILED),
+           Pair(ScanCallback.SCAN_FAILED_FEATURE_UNSUPPORTED, OnScanError.ErrorType.FEATURE_UNSUPPORTED),
+           Pair(ScanCallback.SCAN_FAILED_INTERNAL_ERROR, OnScanError.ErrorType.INTERNAL_ERROR)
+    )
+
     private var btAdapter: BluetoothAdapter? = null
     private var scanSettings: ScanSettings? = null
     private var scanFilters: List<ScanFilter>? = null
-
-    init {
-        errorDescription.append(ScanCallback.SCAN_FAILED_ALREADY_STARTED, R.string.scan_in_progress)
-        errorDescription.append(ScanCallback.SCAN_FAILED_APPLICATION_REGISTRATION_FAILED, R.string.ble_failed_app_reg)
-        errorDescription.append(ScanCallback.SCAN_FAILED_FEATURE_UNSUPPORTED, R.string.ble_scan_unsupp)
-        errorDescription.append(ScanCallback.SCAN_FAILED_INTERNAL_ERROR, R.string.ble_internal_error)
-    }
 
     private fun getScanner(a: Activity): BluetoothLeScanner? {
         if (this.bluetoothLeScanner == null) {
             val btManager = a.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
             if (btManager == null) {
-                callback.onError("No ble")
+                callback.onError(OnScanError.ErrorType.NO_BLUETOOTH)
             } else {
                 btAdapter = btManager.adapter
                 if (btAdapter == null || !btAdapter!!.isEnabled) {
                     val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
                     a.startActivityForResult(enableBtIntent, SCAN_CODE)
-                    callback.onError("NO bt enabled")
+                    callback.onError(OnScanError.ErrorType.NOT_ENABLED)
                     return null
                 } else {
                     bluetoothLeScanner = btAdapter!!.bluetoothLeScanner
@@ -49,7 +46,7 @@ class BeaconsSearcher(private val callback: OnScanError, private val onBeaconFou
             }
         } else if (!btAdapter!!.isEnabled) {
             val enable = btAdapter!!.enable()
-            callback.onError("Bt enabled, try again")
+            callback.onError(OnScanError.ErrorType.BT_DISABLED)
             return null
         }
         return bluetoothLeScanner
@@ -60,7 +57,7 @@ class BeaconsSearcher(private val callback: OnScanError, private val onBeaconFou
             scanRunning = true
             this.bluetoothLeScanner!!.startScan(getScanFilters(), getScanSettings(), this)
         } else {
-            callback.onError("Scan is already in progress")
+            callback.onError(OnScanError.ErrorType.ALREADY_STARTED)
         }
     }
 
@@ -101,16 +98,10 @@ class BeaconsSearcher(private val callback: OnScanError, private val onBeaconFou
         if (scanRecord != null) {
             val serviceData = scanRecord.getServiceData(BeaconsSearcher.EDDYSTONE_SERVICE_UUID)
             if (serviceData != null) {
-                // We're only interested in the UID frame time since we need the beacon ID to register.
                 if (serviceData[0] == BeaconsSearcher.EDDYSTONE_UID_FRAME_TYPE) {
-                    // Extract the beacon ID from the service data. Offset 0 is the frame type, 1 is the
-                    // Tx power, and the next 16 are the ID.
-                    // See https://github.com/google/eddystone/tree/master/eddystone-uid for more information.
                     val nameSpace = toHexString(Arrays.copyOfRange(serviceData, NID_START, NID_END))
                     val instance = toHexString(Arrays.copyOfRange(serviceData, BID_START, BID_END))
                     val txPowerLevel = serviceData[TX_POWER_OFFSET].toInt()
-
-                    // Log.d("BLe", "Found " + nameSpace + ": " + instance + ";" + result.getDevice().getAddress() + ";tx=" + txPowerLevel  +";rrsi"+ result.getRssi());
                     onBeaconFound.onBeaconDistanceFound(Beacon(nameSpace, instance), result.rssi, txPowerLevel)
 
                 }
@@ -128,7 +119,11 @@ class BeaconsSearcher(private val callback: OnScanError, private val onBeaconFou
     override fun onScanFailed(errorCode: Int) {
         stopScan()
         val errorDescription = this.errorDescription.get(errorCode)
-        callback.onError(errorDescription.toString())
+        if (errorDescription == null) {
+            callback.onError(OnScanError.ErrorType.UNKNOWN)
+        } else {
+            callback.onError(errorDescription)
+        }
     }
 
     companion object {

@@ -12,19 +12,7 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import com.agilevision.navigator.*
 
-class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScan, CoordinateTracker {
-
-
-    override fun onDistanceChange(i: Identifier, current: Double, medium: Double?) {
-        mm[i]?.first?.setText(getString(R.string.beacon_distance, mm[i]?.second, current, medium))
-    }
-
-    val a = Identifier("00112233445566778899", "000000000000")
-    val b = Identifier("00112233445566778899", "111111000000")
-    val c = Identifier("00112233445566778899", "111111111111")
-    val d = Identifier("00112233445566778899", "000000111111")
-
-    var mm: MutableMap<Identifier, Pair<TextView, String>> = mutableMapOf()
+class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScanError, CoordinateTracker, DistanceTracker {
 
     @BindView(R.id.text_x) lateinit var tx: TextView
     @BindView(R.id.text_y) lateinit var ty: TextView
@@ -34,22 +22,17 @@ class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScan, Coor
     @BindView(R.id.beacon_c) lateinit var bc: TextView
     @BindView(R.id.beacon_d) lateinit var bd: TextView
 
-
-    override fun onCoordinateChange(x: Double, y: Double) {
-        tx.setText(getString(R.string.x_coordd, x))
-        ty.setText(getString(R.string.y_coord, y))
-    }
-
-    override fun onError(description: String) {
-        error.setText("Error scanning: $description")
-    }
-
+    var mm: MutableMap<Identifier, Pair<TextView, String>> = mutableMapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         ButterKnife.setDebug(BuildConfig.DEBUG)
         ButterKnife.bind(this)
+        val a = Identifier("00112233445566778899", "000000000000")
+        val b = Identifier("00112233445566778899", "111111000000")
+        val c = Identifier("00112233445566778899", "111111111111")
+        val d = Identifier("00112233445566778899", "000000111111")
         mm.put(a, Pair(ba, "A (AC:23:3F:23:C7:87)"));
         mm.put(b, Pair(bb, "B (AC:23:3F:23:C7:85)"));
         mm.put(c, Pair(bc, "C (AC:23:3F:23:C7:D2)"));
@@ -60,7 +43,8 @@ class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScan, Coor
                 .addBeacon(b, Point(3.07, 0.0))
                 .addBeacon(c, Point(3.07, 5.66))
                 .addBeacon(d, Point(0.0, 5.66))
-                .withTracker(this)
+                .trackCoordinate(this)
+                .trackDistance(this)
                 .build()
         val bleUtil = BleUtil(this, cc)
 
@@ -70,6 +54,19 @@ class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScan, Coor
             bleUtil.scanForDevices(this)
         }
 
+    }
+
+    override fun onCoordinateChange(x: Double, y: Double) {
+        tx.setText(getString(R.string.x_coordd, x))
+        ty.setText(getString(R.string.y_coord, y))
+    }
+
+    override fun onError(description: String) {
+        error.setText("Error scanning: $description")
+    }
+
+    override fun onDistanceChange(i: Identifier, current: Double, medium: Double) {
+        mm[i]?.first?.setText(getString(R.string.beacon_distance, mm[i]?.second, current, medium))
     }
 
     private fun isPermissionGranted(c: Context, vararg permissions: String): Boolean {

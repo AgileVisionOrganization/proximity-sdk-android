@@ -7,14 +7,13 @@ import android.bluetooth.le.*
 import android.content.Context
 import android.content.Intent
 import android.os.ParcelUuid
-import android.util.Log
 import android.util.SparseIntArray
 import java.util.*
 
 /**
  * @author Andrew Koidan, AgileVision, 15.12.17.
  */
-class BleUtil(private val callback: OnScan, private val onBeaconFound: OnScanResult) : ScanCallback() {
+class BleUtil(private val callback: OnScanError, private val onBeaconFound: OnScanResult) : ScanCallback() {
     protected var scanRunning = false
 
 

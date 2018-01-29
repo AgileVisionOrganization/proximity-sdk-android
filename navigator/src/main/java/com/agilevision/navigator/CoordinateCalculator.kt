@@ -11,8 +11,9 @@ import java.util.*
  */
 class CoordinateCalculator private constructor(
         var beaconsCorners: Map<Identifier, Point>,
-        var tracker: CoordinateTracker,
+        var coordTracker: CoordinateTracker,
         var cacheTime: Int,
+        var distanceTracker: DistanceTracker?,
         var calcMethod: (Double, Int) -> Double) : OnScanResult {
 
     var x: Double? = null
@@ -49,7 +50,10 @@ class CoordinateCalculator private constructor(
             private set
         var cacheTime: Int = 4000
             private set
-        var calcMethod: (Double, Int) -> Double = ::calculateDistance;
+        var calcMethod: (Double, Int) -> Double = ::calculateDistance
+            private set
+        var distanceTracker: DistanceTracker? = null
+            private set
 
         fun addBeacons(beacons: Map<Identifier, Point>) = apply { beaconsCorners.putAll(beacons) }
         fun addBeacon(beacon: Identifier, point: Point) = apply {
@@ -58,7 +62,8 @@ class CoordinateCalculator private constructor(
         fun addBeacon(namespace: String, instance: String, x: Double, y: Double) = apply {
             beaconsCorners.put(Identifier(namespace, instance), Point(x,y))
         }
-        fun withTracker(tracker: CoordinateTracker) = apply { this.tracker = tracker }
+        fun trackCoordinate(tracker: CoordinateTracker) = apply { this.tracker = tracker }
+        fun trackDistance(distanceTracker: DistanceTracker) = apply { this.distanceTracker = distanceTracker }
         fun cacheTime(cacheTime: Int) = apply { this.cacheTime = cacheTime }
         fun withCalcMethod(coef1: Double, coef2: Double, coef3: Double) = apply {
             calcMethod = calcDistanceConstants(coef1, coef2, coef3)
@@ -69,12 +74,11 @@ class CoordinateCalculator private constructor(
                 throw InvalidConfigException("Configuration should contain at least 3 beacons")
             }
             if (tracker == null) {
-                throw InvalidConfigException("You should specify tracker callback")
+                throw InvalidConfigException("You should specify coordTracker callback")
             }
-            return CoordinateCalculator(beaconsCorners, tracker!!, cacheTime, calcMethod);
+            return CoordinateCalculator(beaconsCorners, tracker!!, cacheTime, distanceTracker, calcMethod);
         }
     }
-
 
 
     class Holder(var rrsi: Int, var txPower: Int) {
@@ -95,8 +99,9 @@ class CoordinateCalculator private constructor(
 
             val distancesMedium: MutableMap<Identifier, Double> = getMedium()
             val medium = distancesMedium.get(beacon)
-
-            tracker.onDistanceChange(beacon, calcMethod(rssi.toDouble(), txPower), medium)
+            if (distanceTracker != null) {
+                distanceTracker!!.onDistanceChange(beacon, calcMethod(rssi.toDouble(), txPower), medium!!)
+            }
             print(beacon.instance)
             distanses.get(beacon)?.forEach { print("${it.rrsi},") }
             println("med:$medium")
@@ -104,7 +109,7 @@ class CoordinateCalculator private constructor(
             val xs = x;
             val ys = y;
             if (xs != null && ys != null) {
-                tracker.onCoordinateChange(xs,ys)
+                coordTracker.onCoordinateChange(xs,ys)
             }
         }
     }

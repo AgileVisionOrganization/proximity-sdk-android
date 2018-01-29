@@ -32,7 +32,7 @@
         android:layout_marginTop="100px"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:text="Initializing"
         android:id="@+id/text_error"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"

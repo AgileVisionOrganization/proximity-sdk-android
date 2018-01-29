@@ -14,16 +14,26 @@ class CoordinateCalculator(var tracker: CoordinateTracker, var beaconsCorners: M
     var x: Double? = null
     var y: Double? = null
 
+    val SIGNAL_LOSS_1M = 41;
+    val CACHE_TIME = 4000
+
     fun calculateDistance(rssi: Double, txPower: Int): Double {
-        return Math.pow(10.0, ( txPower.toDouble() - rssi) / (10 * 2))
+        return Math.pow(10.0, ( txPower.toDouble() - SIGNAL_LOSS_1M - rssi) / (10 * 2))
     }
 
-    class Holder(var rrsi: Int) {
+    class Holder(var rrsi: Int, var txPower: Int) {
         var d : Long = Date().time
     }
 
 
-    val CACHE_TIME = 4000
+    fun calculateDistancev2(rssi: Double, txPower: Int): Double {
+        val ratio = rssi * 1.0 / (txPower - SIGNAL_LOSS_1M);
+        if (ratio < 1.0) {
+            return Math.pow(ratio, 10.0);
+        } else {
+            return (0.89976) * Math.pow(ratio, 7.7095) + 0.111;
+        }
+    }
 
     var positions =  beaconsCorners.map { doubleArrayOf(it.value.x, it.value.y) }.toTypedArray();
 
@@ -33,13 +43,14 @@ class CoordinateCalculator(var tracker: CoordinateTracker, var beaconsCorners: M
         beaconsCorners.forEach{distanses.put(it.key, LinkedList())}
     }
 
-    override fun onBeaconDistanceFound(beacon: Identifier, rssi: Int) {
+    override fun onBeaconDistanceFound(beacon: Identifier, rssi: Int, txPower: Int) {
         if (beaconsCorners.containsKey(beacon)) {
-            distanses.get( beacon)?.add(Holder(rssi))
+            distanses.get( beacon)?.add(Holder(rssi, txPower))
 
             val distancesMedium: MutableMap<Identifier, Double> = getMedium()
             val medium = distancesMedium.get(beacon)
-            tracker.onDistanceChange(beacon, calculateDistance(rssi.toDouble(), -59), medium)
+
+            tracker.onDistanceChange(beacon, calculateDistance(rssi.toDouble(), txPower), medium)
             print(beacon.instance)
             distanses.get(beacon)?.forEach { print("${it.rrsi},") }
             println("med:$medium")
@@ -78,8 +89,10 @@ class CoordinateCalculator(var tracker: CoordinateTracker, var beaconsCorners: M
             val iterator = ik.value.iterator()
             var rrsiSumm = 0
             var min = -300;
+            var txPower: Int? = null;
             while (iterator.hasNext()) {
                 val d = iterator.next()
+                txPower = d.txPower
                 if (now - d.d > CACHE_TIME) {
                     iterator.remove()
                 } else {
@@ -96,8 +109,8 @@ class CoordinateCalculator(var tracker: CoordinateTracker, var beaconsCorners: M
                 mediana = min.toDouble()
             }
 
-            if (rrsiSumm != 0) {
-                distancesMedium.put(ik.key, calculateDistance(mediana, -59))
+            if (rrsiSumm != 0 && txPower != null) {
+                distancesMedium.put(ik.key, calculateDistance(mediana, txPower))
             }
         }
         return distancesMedium

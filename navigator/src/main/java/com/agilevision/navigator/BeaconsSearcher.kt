@@ -13,7 +13,8 @@ import java.util.*
  * @author Andrew Koidan, AgileVision, 15.12.17.
  */
 class BeaconsSearcher(private val callback: OnScanError, private val onBeaconFound: BeaconsTracker) : ScanCallback() {
-    protected var scanRunning = false
+    var scanRunning = false
+        private set
 
     private var bluetoothLeScanner: BluetoothLeScanner? = null
     private val errorDescription: Map<Int, OnScanError.ErrorType> = mapOf(

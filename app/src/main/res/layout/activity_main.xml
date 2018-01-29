@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="15dp"
     tools:context="distance.agilevision.com.beacondistanceapp.MainActivity">
 
 
@@ -28,8 +29,17 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:text="Start Scan"
+        android:id="@+id/beacon_scan_btn"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content" />
+
     <TextView
-        android:layout_marginTop="100px"
+        android:visibility="gone"
+        android:layout_marginTop="10px"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Initializing"
@@ -40,7 +50,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:layout_marginTop="100px"
+        android:layout_marginTop="10px"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="A: searching..."
@@ -51,9 +61,8 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-
     <TextView
-        android:layout_marginTop="100px"
+        android:layout_marginTop="10px"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="B: searching..."
@@ -65,7 +74,7 @@
 
 
     <TextView
-        android:layout_marginTop="100px"
+        android:layout_marginTop="10px"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="C: searching..."
@@ -76,7 +85,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:layout_marginTop="100px"
+        android:layout_marginTop="10px"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="D: searching..."

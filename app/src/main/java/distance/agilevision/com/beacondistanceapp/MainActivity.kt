@@ -7,9 +7,13 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.view.View.GONE
+import android.view.View.VISIBLE
+import android.widget.Button
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
+import butterknife.OnClick
 import com.agilevision.navigator.*
 
 class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScanError, CoordinateTracker, DistanceTracker {
@@ -21,8 +25,10 @@ class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScanError,
     @BindView(R.id.beacon_b) lateinit var bb: TextView
     @BindView(R.id.beacon_c) lateinit var bc: TextView
     @BindView(R.id.beacon_d) lateinit var bd: TextView
+    @BindView(R.id.beacon_scan_btn) lateinit var btnScan: Button
 
     var mm: MutableMap<Beacon, Pair<TextView, String>> = mutableMapOf()
+    lateinit var bs: BeaconsSearcher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,14 +52,26 @@ class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScanError,
                 .trackCoordinate(this)
                 .trackDistance(this)
                 .build()
-        val bleUtil = BeaconsSearcher(this, cc)
+        bs = BeaconsSearcher(this, cc)
+        onScanClick(null)
 
+
+    }
+
+    @OnClick(R.id.beacon_scan_btn)
+    fun onScanClick(btn: Button?) {
         if (!isBluetoothGranted()) {
             askBTPermissions()
         } else {
-            bleUtil.scanForDevices(this)
+            error.visibility = GONE
+            if (bs.scanRunning) {
+                bs.stopScan()
+                btnScan.setText("Start scan")
+            } else {
+                bs.scanForDevices(this)
+                btnScan.setText("Stop scann")
+            }
         }
-
     }
 
     override fun onCoordinateChange(x: Double, y: Double) {
@@ -62,7 +80,9 @@ class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScanError,
     }
 
     override fun onError(description: OnScanError.ErrorType) {
-        error.setText("Error scanning: ${description.description}")
+        btnScan.setText("Start scan")
+        error.visibility = VISIBLE
+        error.setText(getString(R.string.err_scan, description.description))
     }
 
     override fun onDistanceChange(i: Beacon, current: Double, medium: Double) {

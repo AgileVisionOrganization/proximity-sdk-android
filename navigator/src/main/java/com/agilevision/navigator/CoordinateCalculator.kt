@@ -1,4 +1,4 @@
-package distance.agilevision.com.beacondistanceapp
+package com.agilevision.navigator
 
 import com.lemmingapex.trilateration.NonLinearLeastSquaresSolver
 import com.lemmingapex.trilateration.TrilaterationFunction
@@ -14,8 +14,7 @@ class CoordinateCalculator(var tracker: CoordinateTracker, var beaconsCorners: M
     var x: Double? = null
     var y: Double? = null
 
-    val SIGNAL_LOSS_1M = 41;
-    val CACHE_TIME = 4000
+    val cacheTime = 4000
 
     fun calculateDistance(rssi: Double, txPower: Int): Double {
         return Math.pow(10.0, ( txPower.toDouble() - SIGNAL_LOSS_1M - rssi) / (10 * 2))
@@ -93,7 +92,7 @@ class CoordinateCalculator(var tracker: CoordinateTracker, var beaconsCorners: M
             while (iterator.hasNext()) {
                 val d = iterator.next()
                 txPower = d.txPower
-                if (now - d.d > CACHE_TIME) {
+                if (now - d.d > cacheTime) {
                     iterator.remove()
                 } else {
                     if (d.rrsi > min) {
@@ -118,5 +117,9 @@ class CoordinateCalculator(var tracker: CoordinateTracker, var beaconsCorners: M
 
     private fun calculateMedium(rrsiSumm: Int, min: Int, ik: Map.Entry<Identifier, LinkedList<Holder>>) =
             (((rrsiSumm - min).toDouble() / (ik.value.size - 1)) + min.toDouble()) / 2
+
+    companion object {
+        val SIGNAL_LOSS_1M = 41;
+    }
 
 }

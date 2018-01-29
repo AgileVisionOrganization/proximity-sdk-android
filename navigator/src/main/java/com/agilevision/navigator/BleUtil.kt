@@ -1,21 +1,15 @@
-package distance.agilevision.com.beacondistanceapp
+package com.agilevision.navigator
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
-import android.bluetooth.le.BluetoothLeScanner
-import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanFilter
-import android.bluetooth.le.ScanRecord
-import android.bluetooth.le.ScanResult
-import android.bluetooth.le.ScanSettings
+import android.bluetooth.le.*
 import android.content.Context
 import android.content.Intent
 import android.os.ParcelUuid
 import android.util.Log
 import android.util.SparseIntArray
-
-import java.util.Arrays
+import java.util.*
 
 /**
  * @author Andrew Koidan, AgileVision, 15.12.17.
@@ -63,9 +57,7 @@ class BleUtil(private val callback: OnScan, private val onBeaconFound: OnScanRes
     }
 
     fun scanForDevices(a: Activity) {
-        if (!PermissionUtils.isBluetoothGranted(a)) {
-            PermissionUtils.askBTPermissions(a)
-        } else if (this.getScanner(a) != null && !scanRunning) {
+        if (this.getScanner(a) != null && !scanRunning) {
             scanRunning = true
             callback.startScan()
             Log.d("BLE", "Starting scan")

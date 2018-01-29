@@ -1,12 +1,52 @@
 package distance.agilevision.com.beacondistanceapp
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
+import com.agilevision.navigator.*
 
-class MainActivity : AppCompatActivity(), OnScan, CoordinateTracker {
+class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScan, CoordinateTracker {
+
+
+    val BT_ASK_CODE = 23
+
+    private fun isPermissionGranted(c: Context, vararg permissions: String): Boolean {
+        var granted = true
+        for (permission in permissions) {
+            granted = granted and (PackageManager.PERMISSION_GRANTED
+                    == ContextCompat.checkSelfPermission(c, permission))
+        }
+        return granted
+    }
+
+    fun isBluetoothGranted(): Boolean {
+        return isPermissionGranted(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.BLUETOOTH
+        )
+    }
+
+    fun askBTPermissions() {
+        ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.BLUETOOTH_ADMIN,
+                        Manifest.permission.BLUETOOTH
+                ),
+                BT_ASK_CODE)
+    }
+
+
     override fun onDistanceChange(i: Identifier, current: Double, medium: Double?) {
         mm[i]?.first?.setText(getString(R.string.beacon_distance, mm[i]?.second, current, medium))
     }
@@ -16,7 +56,7 @@ class MainActivity : AppCompatActivity(), OnScan, CoordinateTracker {
     val c = Identifier("00112233445566778899", "111111111111")
     val d = Identifier("00112233445566778899", "000000111111")
 
-    var mm :MutableMap<Identifier, Pair<TextView, String>> = mutableMapOf()
+    var mm: MutableMap<Identifier, Pair<TextView, String>> = mutableMapOf()
 
     @BindView(R.id.text_x) lateinit var tx: TextView
     @BindView(R.id.text_y) lateinit var ty: TextView
@@ -29,7 +69,7 @@ class MainActivity : AppCompatActivity(), OnScan, CoordinateTracker {
 
     override fun onCoordinateChange(x: Double, y: Double) {
         tx.setText(getString(R.string.x_coordd, x))
-        ty.setText(getString(R.string.y_coord,y))
+        ty.setText(getString(R.string.y_coord, y))
     }
 
     override fun startScan() {
@@ -59,7 +99,12 @@ class MainActivity : AppCompatActivity(), OnScan, CoordinateTracker {
         )
         var cc = CoordinateCalculator(this, beacons)
         val bleUtil = BleUtil(this, cc)
-        bleUtil.scanForDevices(this)
+
+        if (!isBluetoothGranted()) {
+            askBTPermissions()
+        } else {
+            bleUtil.scanForDevices(this)
+        }
 
     }
 }

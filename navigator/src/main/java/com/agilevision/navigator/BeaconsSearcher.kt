@@ -13,7 +13,7 @@ import java.util.*
 /**
  * @author Andrew Koidan, AgileVision, 15.12.17.
  */
-class BleUtil(private val callback: OnScanError, private val onBeaconFound: OnScanResult) : ScanCallback() {
+class BeaconsSearcher(private val callback: OnScanError, private val onBeaconFound: BeaconsTracker) : ScanCallback() {
     protected var scanRunning = false
 
 
@@ -99,10 +99,10 @@ class BleUtil(private val callback: OnScanError, private val onBeaconFound: OnSc
     override fun onScanResult(callbackType: Int, result: ScanResult) {
         val scanRecord = result.scanRecord
         if (scanRecord != null) {
-            val serviceData = scanRecord.getServiceData(BleUtil.EDDYSTONE_SERVICE_UUID)
+            val serviceData = scanRecord.getServiceData(BeaconsSearcher.EDDYSTONE_SERVICE_UUID)
             if (serviceData != null) {
                 // We're only interested in the UID frame time since we need the beacon ID to register.
-                if (serviceData[0] == BleUtil.EDDYSTONE_UID_FRAME_TYPE) {
+                if (serviceData[0] == BeaconsSearcher.EDDYSTONE_UID_FRAME_TYPE) {
                     // Extract the beacon ID from the service data. Offset 0 is the frame type, 1 is the
                     // Tx power, and the next 16 are the ID.
                     // See https://github.com/google/eddystone/tree/master/eddystone-uid for more information.
@@ -111,7 +111,7 @@ class BleUtil(private val callback: OnScanError, private val onBeaconFound: OnSc
                     val txPowerLevel = serviceData[TX_POWER_OFFSET].toInt()
 
                     // Log.d("BLe", "Found " + nameSpace + ": " + instance + ";" + result.getDevice().getAddress() + ";tx=" + txPowerLevel  +";rrsi"+ result.getRssi());
-                    onBeaconFound.onBeaconDistanceFound(Identifier(nameSpace, instance), result.rssi, txPowerLevel)
+                    onBeaconFound.onBeaconDistanceFound(Beacon(nameSpace, instance), result.rssi, txPowerLevel)
 
                 }
             }

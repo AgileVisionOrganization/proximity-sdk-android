@@ -10,11 +10,11 @@ import java.util.*
  * @author Andrew Koidan, AgileVision, 25.01.18.
  */
 class CoordinateCalculator private constructor(
-        var beaconsCorners: Map<Identifier, Point>,
+        var beaconsCorners: Map<Beacon, XYPoint>,
         var coordTracker: CoordinateTracker,
         var cacheTime: Int,
         var distanceTracker: DistanceTracker?,
-        var calcMethod: (Double, Int) -> Double) : OnScanResult {
+        var calcMethod: (Double, Int) -> Double) : BeaconsTracker {
 
     var x: Double? = null
     var y: Double? = null
@@ -44,7 +44,7 @@ class CoordinateCalculator private constructor(
             }
         }
 
-        var beaconsCorners: MutableMap<Identifier, Point> = mutableMapOf()
+        var beaconsCorners: MutableMap<Beacon, XYPoint> = mutableMapOf()
             private set
         var tracker: CoordinateTracker? = null
             private set
@@ -55,12 +55,12 @@ class CoordinateCalculator private constructor(
         var distanceTracker: DistanceTracker? = null
             private set
 
-        fun addBeacons(beacons: Map<Identifier, Point>) = apply { beaconsCorners.putAll(beacons) }
-        fun addBeacon(beacon: Identifier, point: Point) = apply {
+        fun addBeacons(beacons: Map<Beacon, XYPoint>) = apply { beaconsCorners.putAll(beacons) }
+        fun addBeacon(beacon: Beacon, point: XYPoint) = apply {
             beaconsCorners.put(beacon, point)
         }
         fun addBeacon(namespace: String, instance: String, x: Double, y: Double) = apply {
-            beaconsCorners.put(Identifier(namespace, instance), Point(x,y))
+            beaconsCorners.put(Beacon(namespace, instance), XYPoint(x,y))
         }
         fun trackCoordinate(tracker: CoordinateTracker) = apply { this.tracker = tracker }
         fun trackDistance(distanceTracker: DistanceTracker) = apply { this.distanceTracker = distanceTracker }
@@ -87,17 +87,17 @@ class CoordinateCalculator private constructor(
 
     var positions =  beaconsCorners.map { doubleArrayOf(it.value.x, it.value.y) }.toTypedArray();
 
-    var distanses: MutableMap<Identifier, LinkedList<Holder>> =  mutableMapOf();
+    var distanses: MutableMap<Beacon, LinkedList<Holder>> =  mutableMapOf();
 
     init {
         beaconsCorners.forEach{distanses.put(it.key, LinkedList())}
     }
 
-    override fun onBeaconDistanceFound(beacon: Identifier, rssi: Int, txPower: Int) {
+    override fun onBeaconDistanceFound(beacon: Beacon, rssi: Int, txPower: Int) {
         if (beaconsCorners.containsKey(beacon)) {
             distanses.get( beacon)?.add(Holder(rssi, txPower))
 
-            val distancesMedium: MutableMap<Identifier, Double> = getMedium()
+            val distancesMedium: MutableMap<Beacon, Double> = getMedium()
             val medium = distancesMedium.get(beacon)
             if (distanceTracker != null) {
                 distanceTracker!!.onDistanceChange(beacon, calcMethod(rssi.toDouble(), txPower), medium!!)
@@ -115,7 +115,7 @@ class CoordinateCalculator private constructor(
     }
 
 
-    fun recalcCoordinates(distancesMedium: MutableMap<Identifier, Double>): MutableMap<Identifier, Double>? {
+    fun recalcCoordinates(distancesMedium: MutableMap<Beacon, Double>): MutableMap<Beacon, Double>? {
         var d = DoubleArray(0)
         if (distancesMedium.size == beaconsCorners.size) {
             beaconsCorners.forEach{ d+= distancesMedium.get(it.key) as Double}
@@ -133,9 +133,9 @@ class CoordinateCalculator private constructor(
 
     }
 
-    private fun getMedium(): MutableMap<Identifier, Double> {
+    private fun getMedium(): MutableMap<Beacon, Double> {
         val now = Date().time
-        val distancesMedium: MutableMap<Identifier, Double> = mutableMapOf()
+        val distancesMedium: MutableMap<Beacon, Double> = mutableMapOf()
         distanses.forEach { ik ->
             val iterator = ik.value.iterator()
             var rrsiSumm = 0
@@ -167,7 +167,7 @@ class CoordinateCalculator private constructor(
         return distancesMedium
     }
 
-    private fun calculateMedium(rrsiSumm: Int, min: Int, ik: Map.Entry<Identifier, LinkedList<Holder>>) =
+    private fun calculateMedium(rrsiSumm: Int, min: Int, ik: Map.Entry<Beacon, LinkedList<Holder>>) =
             (((rrsiSumm - min).toDouble() / (ik.value.size - 1)) + min.toDouble()) / 2
 
 

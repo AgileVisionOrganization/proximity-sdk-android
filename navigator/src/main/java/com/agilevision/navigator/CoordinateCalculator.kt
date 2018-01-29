@@ -9,29 +9,76 @@ import java.util.*
 /**
  * @author Andrew Koidan, AgileVision, 25.01.18.
  */
-class CoordinateCalculator(var tracker: CoordinateTracker, var beaconsCorners: Map<Identifier, Point>): OnScanResult {
+class CoordinateCalculator private constructor(
+        var beaconsCorners: Map<Identifier, Point>,
+        var tracker: CoordinateTracker,
+        var cacheTime: Int,
+        var calcMethod: (Double, Int) -> Double) : OnScanResult {
 
     var x: Double? = null
     var y: Double? = null
 
-    val cacheTime = 4000
 
-    fun calculateDistance(rssi: Double, txPower: Int): Double {
-        return Math.pow(10.0, ( txPower.toDouble() - SIGNAL_LOSS_1M - rssi) / (10 * 2))
+    class InvalidConfigException(override var message:String): Exception(message)
+
+    class Builder {
+
+        val SIGNAL_LOSS_1M = 41;
+        val COEF_1 = 0.89976
+        val COEF_2 = 7.7095
+        val COEF_3 = 0.111
+
+        fun calculateDistance(rssi: Double, txPower: Int): Double {
+            return Math.pow(10.0, ( txPower.toDouble() - SIGNAL_LOSS_1M - rssi) / (10 * 2))
+        }
+
+        fun calcDistanceConstants(p1: Double, p2: Double, p3: Double): (Double, Int) -> Double {
+            return fun(rssi: Double, txPower: Int): Double {
+                val ratio = rssi * 1.0 / (txPower - SIGNAL_LOSS_1M);
+                if (ratio < 1.0) {
+                    return Math.pow(ratio, 10.0);
+                } else {
+                    return (p1) * Math.pow(ratio, p2) + p3;
+                }
+            }
+        }
+
+        var beaconsCorners: MutableMap<Identifier, Point> = mutableMapOf()
+            private set
+        var tracker: CoordinateTracker? = null
+            private set
+        var cacheTime: Int = 4000
+            private set
+        var calcMethod: (Double, Int) -> Double = ::calculateDistance;
+
+        fun addBeacons(beacons: Map<Identifier, Point>) = apply { beaconsCorners.putAll(beacons) }
+        fun addBeacon(beacon: Identifier, point: Point) = apply {
+            beaconsCorners.put(beacon, point)
+        }
+        fun addBeacon(namespace: String, instance: String, x: Double, y: Double) = apply {
+            beaconsCorners.put(Identifier(namespace, instance), Point(x,y))
+        }
+        fun withTracker(tracker: CoordinateTracker) = apply { this.tracker = tracker }
+        fun cacheTime(cacheTime: Int) = apply { this.cacheTime = cacheTime }
+        fun withCalcMethod(coef1: Double, coef2: Double, coef3: Double) = apply {
+            calcMethod = calcDistanceConstants(coef1, coef2, coef3)
+        }
+
+        fun build(): CoordinateCalculator  {
+            if (beaconsCorners.size < 3) {
+                throw InvalidConfigException("Configuration should contain at least 3 beacons")
+            }
+            if (tracker == null) {
+                throw InvalidConfigException("You should specify tracker callback")
+            }
+            return CoordinateCalculator(beaconsCorners, tracker!!, cacheTime, calcMethod);
+        }
     }
+
+
 
     class Holder(var rrsi: Int, var txPower: Int) {
         var d : Long = Date().time
-    }
-
-
-    fun calculateDistancev2(rssi: Double, txPower: Int): Double {
-        val ratio = rssi * 1.0 / (txPower - SIGNAL_LOSS_1M);
-        if (ratio < 1.0) {
-            return Math.pow(ratio, 10.0);
-        } else {
-            return (0.89976) * Math.pow(ratio, 7.7095) + 0.111;
-        }
     }
 
     var positions =  beaconsCorners.map { doubleArrayOf(it.value.x, it.value.y) }.toTypedArray();
@@ -49,7 +96,7 @@ class CoordinateCalculator(var tracker: CoordinateTracker, var beaconsCorners: M
             val distancesMedium: MutableMap<Identifier, Double> = getMedium()
             val medium = distancesMedium.get(beacon)
 
-            tracker.onDistanceChange(beacon, calculateDistance(rssi.toDouble(), txPower), medium)
+            tracker.onDistanceChange(beacon, calcMethod(rssi.toDouble(), txPower), medium)
             print(beacon.instance)
             distanses.get(beacon)?.forEach { print("${it.rrsi},") }
             println("med:$medium")
@@ -109,7 +156,7 @@ class CoordinateCalculator(var tracker: CoordinateTracker, var beaconsCorners: M
             }
 
             if (rrsiSumm != 0 && txPower != null) {
-                distancesMedium.put(ik.key, calculateDistance(mediana, txPower))
+                distancesMedium.put(ik.key, calcMethod(mediana, txPower))
             }
         }
         return distancesMedium
@@ -118,8 +165,5 @@ class CoordinateCalculator(var tracker: CoordinateTracker, var beaconsCorners: M
     private fun calculateMedium(rrsiSumm: Int, min: Int, ik: Map.Entry<Identifier, LinkedList<Holder>>) =
             (((rrsiSumm - min).toDouble() / (ik.value.size - 1)) + min.toDouble()) / 2
 
-    companion object {
-        val SIGNAL_LOSS_1M = 41;
-    }
 
 }

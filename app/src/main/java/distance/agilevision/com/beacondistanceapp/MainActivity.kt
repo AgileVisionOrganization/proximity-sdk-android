@@ -15,38 +15,6 @@ import com.agilevision.navigator.*
 class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScan, CoordinateTracker {
 
 
-    val BT_ASK_CODE = 23
-
-    private fun isPermissionGranted(c: Context, vararg permissions: String): Boolean {
-        var granted = true
-        for (permission in permissions) {
-            granted = granted and (PackageManager.PERMISSION_GRANTED
-                    == ContextCompat.checkSelfPermission(c, permission))
-        }
-        return granted
-    }
-
-    fun isBluetoothGranted(): Boolean {
-        return isPermissionGranted(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.BLUETOOTH_ADMIN,
-                Manifest.permission.BLUETOOTH
-        )
-    }
-
-    fun askBTPermissions() {
-        ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.BLUETOOTH_ADMIN,
-                        Manifest.permission.BLUETOOTH
-                ),
-                BT_ASK_CODE)
-    }
-
-
     override fun onDistanceChange(i: Identifier, current: Double, medium: Double?) {
         mm[i]?.first?.setText(getString(R.string.beacon_distance, mm[i]?.second, current, medium))
     }
@@ -72,10 +40,6 @@ class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScan, Coor
         ty.setText(getString(R.string.y_coord, y))
     }
 
-    override fun startScan() {
-        error.setText("Scan is in proggress")
-    }
-
     override fun onError(description: String) {
         error.setText("Error scanning: $description")
     }
@@ -91,13 +55,13 @@ class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScan, Coor
         mm.put(c, Pair(bc, "C (AC:23:3F:23:C7:D2)"));
         mm.put(d, Pair(bd, "D (AC:23:3F:24:05:7D)"));
 
-        val beacons: Map<Identifier, Point> = mapOf(
-                a to Point(0.0, 0.0),
-                b to Point(3.07, 0.0),
-                c to Point(3.07, 5.66),
-                d to Point(0.0, 5.66)
-        )
-        var cc = CoordinateCalculator(this, beacons)
+        val cc = CoordinateCalculator.Builder()
+                .addBeacon(a, Point(0.0, 0.0))
+                .addBeacon(b, Point(3.07, 0.0))
+                .addBeacon(c, Point(3.07, 5.66))
+                .addBeacon(d, Point(0.0, 5.66))
+                .withTracker(this)
+                .build()
         val bleUtil = BleUtil(this, cc)
 
         if (!isBluetoothGranted()) {
@@ -106,5 +70,34 @@ class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScan, Coor
             bleUtil.scanForDevices(this)
         }
 
+    }
+
+    private fun isPermissionGranted(c: Context, vararg permissions: String): Boolean {
+        var granted = true
+        for (permission in permissions) {
+            granted = granted and (PackageManager.PERMISSION_GRANTED
+                    == ContextCompat.checkSelfPermission(c, permission))
+        }
+        return granted
+    }
+
+    private fun isBluetoothGranted(): Boolean {
+        return isPermissionGranted(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.BLUETOOTH
+        )
+    }
+
+    private fun askBTPermissions() {
+        ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.BLUETOOTH_ADMIN,
+                        Manifest.permission.BLUETOOTH
+                ),
+                444)
     }
 }

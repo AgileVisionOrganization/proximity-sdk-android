@@ -59,9 +59,9 @@ class BleUtil(private val callback: OnScan, private val onBeaconFound: OnScanRes
     fun scanForDevices(a: Activity) {
         if (this.getScanner(a) != null && !scanRunning) {
             scanRunning = true
-            callback.startScan()
-            Log.d("BLE", "Starting scan")
             this.bluetoothLeScanner!!.startScan(getScanFilters(), getScanSettings(), this)
+        } else {
+            callback.onError("Scan is already in progress")
         }
     }
 

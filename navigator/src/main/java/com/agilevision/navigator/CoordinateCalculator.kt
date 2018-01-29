@@ -95,16 +95,14 @@ class CoordinateCalculator private constructor(
 
     override fun onBeaconDistanceFound(beacon: Beacon, rssi: Int, txPower: Int) {
         if (beaconsCorners.containsKey(beacon)) {
-            distanses.get( beacon)?.add(Holder(rssi, txPower))
-
+            distanses.get(beacon)?.add(Holder(rssi, txPower))
+            println("Called onBeaconDistanceFound with $beacon, rssi: $rssi, txPower, : $txPower")
             val distancesMedium: MutableMap<Beacon, Double> = getMedium()
             val medium = distancesMedium.get(beacon)
             if (distanceTracker != null) {
                 distanceTracker!!.onDistanceChange(beacon, calcMethod(rssi.toDouble(), txPower), medium!!)
             }
-            print(beacon.instance)
             distanses.get(beacon)?.forEach { print("${it.rrsi},") }
-            println("med:$medium")
             recalcCoordinates(distancesMedium)
             val xs = x;
             val ys = y;

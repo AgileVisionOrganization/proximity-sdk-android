@@ -22,4 +22,8 @@ class Beacon(var namespace: String, var instance: String) {
         result = 31 * result + instance.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "$namespace:$instance"
+    }
 }

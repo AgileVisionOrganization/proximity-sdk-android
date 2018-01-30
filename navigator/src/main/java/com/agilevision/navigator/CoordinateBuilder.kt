@@ -96,7 +96,7 @@ class CoordinateBuilder {
 
     /**
      * Replaces default method for distance calculation with foruma below:
-     * The formula is (coef1)*((rssi/power)^ coef2) + coef3
+     * The formula is (coef1)*((rssi/power)^coef2) + coef3
      * */
     fun withCalcMethod(coef1: Double, coef2: Double, coef3: Double) = apply {
         calcMethod = calcDistanceConstants(coef1, coef2, coef3)

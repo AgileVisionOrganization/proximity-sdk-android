@@ -1,5 +1,6 @@
 package com.agilevision.navigator
 
+import android.util.Log
 import com.lemmingapex.trilateration.NonLinearLeastSquaresSolver
 import com.lemmingapex.trilateration.TrilaterationFunction
 import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer
@@ -12,7 +13,7 @@ import java.util.*
 class CoordinateCalculator (
         var beaconsCorners: Map<Beacon, XYPoint>,
         var coordTracker: CoordinateTracker,
-        var cacheTime: Int,
+        var cacheTime: Int?,
         var distanceTracker: DistanceTracker?,
         var calcMethod: (Double, Int) -> Double,
         var logs: Boolean) : BeaconsTracker {
@@ -26,56 +27,64 @@ class CoordinateCalculator (
 
     var positions =  beaconsCorners.map { doubleArrayOf(it.value.x, it.value.y) }.toTypedArray();
 
-    var distanses: MutableMap<Beacon, LinkedList<Holder>> =  mutableMapOf();
+    var distansesCachable: MutableMap<Beacon, LinkedList<Holder>> =  mutableMapOf();
+    var distancesSingle: MutableMap<Beacon, Double> =  mutableMapOf();
 
     init {
-        beaconsCorners.forEach{distanses.put(it.key, LinkedList())}
+        beaconsCorners.forEach{distansesCachable.put(it.key, LinkedList())}
     }
 
     override fun onBeaconDistanceFound(beacon: Beacon, rssi: Int, txPower: Int) {
         if (beaconsCorners.containsKey(beacon)) {
-            distanses.get(beacon)?.add(Holder(rssi, txPower))
-            val distancesMedium: MutableMap<Beacon, Double> = getMedium()
+            val distancesMedium: MutableMap<Beacon, Double>
+            if (cacheTime != null) {
+                distansesCachable.get(beacon)?.add(Holder(rssi, txPower))
+                distancesMedium = getMedium()
+            } else {
+                distancesSingle.put(beacon, calcMethod(rssi.toDouble(), txPower))
+                distancesMedium = distancesSingle
+            }
+
             val medium = distancesMedium.get(beacon)
             if (distanceTracker != null) {
                 distanceTracker!!.onDistanceChange(beacon, calcMethod(rssi.toDouble(), txPower), medium!!)
             }
             if (logs) {
-                print("Called onBeaconDistanceFound with $beacon, rssi: $rssi, txPower, : $txPower")
-                distanses.get(beacon)?.forEach { print("${it.rrsi},") }
+                val allRssis: String?
+                if (cacheTime != null) {
+                    allRssis = ",all rssi"+ distansesCachable.get(beacon)?.joinToString(transform = { it.rrsi.toString() })
+                } else {
+                    allRssis = ""
+                }
+                Log.d("CoordinateCalculator", "Found beacon $beacon, rssi: $rssi, txPower, : $txPower $allRssis")
             }
-            recalcCoordinates(distancesMedium)
-            val xs = x;
-            val ys = y;
-            if (xs != null && ys != null) {
-                coordTracker.onCoordinateChange(xs,ys)
+            if (distancesMedium.size == beaconsCorners.size) {
+                recalcCoordinates(distancesMedium)
+                coordTracker.onCoordinateChange(x!!, y!!)
             }
         }
     }
 
 
-    fun recalcCoordinates(distancesMedium: MutableMap<Beacon, Double>): MutableMap<Beacon, Double>? {
+    fun recalcCoordinates(distancesMedium: MutableMap<Beacon, Double>) {
         var d = DoubleArray(0)
-        if (distancesMedium.size == beaconsCorners.size) {
-            beaconsCorners.forEach{ d+= distancesMedium.get(it.key) as Double}
-            val solver = NonLinearLeastSquaresSolver(TrilaterationFunction(positions, d), LevenbergMarquardtOptimizer())
-            val optimum = solver.solve()
-            val centroid = optimum.point.toArray()
+        beaconsCorners.forEach { d += distancesMedium.get(it.key)!! }
+        val solver = NonLinearLeastSquaresSolver(TrilaterationFunction(positions, d), LevenbergMarquardtOptimizer())
+        val optimum = solver.solve()
+        val centroid = optimum.point.toArray()
+        x = centroid[0]
+        y = centroid[1]
+        if (logs) {
             val standardDeviation = optimum.getSigma(0.0)
             val covarianceMatrix = optimum.getCovariances(0.0)
-            x = centroid[0]
-            y = centroid[1]
-            return distancesMedium
-        } else {
-            return null
+            Log.d("Calculated coord", String.format("{%.2f, %.2f}. Deviation=%s; Covariance=%s", x, y, standardDeviation, covarianceMatrix))
         }
-
     }
 
     private fun getMedium(): MutableMap<Beacon, Double> {
         val now = Date().time
         val distancesMedium: MutableMap<Beacon, Double> = mutableMapOf()
-        distanses.forEach { ik ->
+        distansesCachable.forEach { ik ->
             val iterator = ik.value.iterator()
             var rrsiSumm = 0
             var min = -300;
@@ -83,7 +92,7 @@ class CoordinateCalculator (
             while (iterator.hasNext()) {
                 val d = iterator.next()
                 txPower = d.txPower
-                if (now - d.d > cacheTime) {
+                if (now - d.d > cacheTime!!) {
                     iterator.remove()
                 } else {
                     if (d.rrsi > min) {

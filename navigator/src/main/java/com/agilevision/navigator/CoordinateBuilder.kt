@@ -31,7 +31,7 @@ class CoordinateBuilder {
         private set
     var tracker: CoordinateTracker? = null
         private set
-    var cacheTime: Int = 4000
+    var cacheTime: Int? = 4000
         private set
     var logs: Boolean = false
         private set
@@ -42,22 +42,25 @@ class CoordinateBuilder {
 
     fun addBeacons(beacons: Map<Beacon, XYPoint>) = apply { beaconsCorners.putAll(beacons) }
     fun addBeacon(beacon: Beacon, point: XYPoint) = apply {
+        if (beaconsCorners.containsKey(beacon)) {
+            throw InvalidConfigException("Beacon $beacon already exists")
+        }
         beaconsCorners.put(beacon, point)
     }
     fun addBeacon(namespace: String, instance: String, x: Double, y: Double) = apply {
-        beaconsCorners.put(Beacon(namespace, instance), XYPoint(x,y))
+        addBeacon(Beacon(namespace, instance), XYPoint(x,y))
     }
     fun trackCoordinate(tracker: CoordinateTracker) = apply { this.tracker = tracker }
     fun enableLogs() = apply { this.logs = true }
     fun trackDistance(distanceTracker: DistanceTracker) = apply { this.distanceTracker = distanceTracker }
-    fun cacheTime(cacheTime: Int) = apply { this.cacheTime = cacheTime }
+    fun cacheTime(cacheTime: Int?) = apply { this.cacheTime = cacheTime }
     fun withCalcMethod(coef1: Double, coef2: Double, coef3: Double) = apply {
         calcMethod = calcDistanceConstants(coef1, coef2, coef3)
     }
 
     fun build(): CoordinateCalculator  {
         if (beaconsCorners.size < 3) {
-            throw InvalidConfigException("Configuration should contain at least 3 beacons")
+            throw InvalidConfigException("Configuration should contain at least 3 different beacons")
         }
         if (tracker == null) {
             throw InvalidConfigException("You should specify coordTracker callback")

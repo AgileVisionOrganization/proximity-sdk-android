@@ -13,8 +13,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.agilevision.navigator.Beacon;
 import com.agilevision.navigator.BeaconsSearcher;
@@ -54,11 +56,11 @@ public class MainActivityJava extends AppCompatActivity implements OnScanError, 
       this.text = text;
     }
 
-    TextView tv;
-    String text;
+    private TextView tv;
+    private String text;
   }
 
-  private Map<Beacon, Holder> mm = new HashMap();
+  private Map<Beacon, Holder> mm = new HashMap<>();
   BeaconsSearcher bs;
 
   @Override

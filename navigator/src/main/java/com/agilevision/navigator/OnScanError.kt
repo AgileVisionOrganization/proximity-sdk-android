@@ -18,5 +18,9 @@ interface OnScanError {
     }
 
 
+    /**
+     * Callback that's triggered if error occurred during enabling Bluetooth Low Energy or its scan
+     * If this callback is triggered - this only means that something wrong with bluetooth or its configuration
+     * */
     fun onError(description: ErrorType)
 }

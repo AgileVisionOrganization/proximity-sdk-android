@@ -18,10 +18,10 @@ class BeaconsSearcher(private val callback: OnScanError, private val onBeaconFou
 
     private var bluetoothLeScanner: BluetoothLeScanner? = null
     private val errorDescription: Map<Int, OnScanError.ErrorType> = mapOf(
-           Pair(ScanCallback.SCAN_FAILED_ALREADY_STARTED, OnScanError.ErrorType.ALREADY_STARTED),
-           Pair(ScanCallback.SCAN_FAILED_APPLICATION_REGISTRATION_FAILED, OnScanError.ErrorType.APPLICATION_REGISTRATION_FAILED),
-           Pair(ScanCallback.SCAN_FAILED_FEATURE_UNSUPPORTED, OnScanError.ErrorType.FEATURE_UNSUPPORTED),
-           Pair(ScanCallback.SCAN_FAILED_INTERNAL_ERROR, OnScanError.ErrorType.INTERNAL_ERROR)
+            Pair(ScanCallback.SCAN_FAILED_ALREADY_STARTED, OnScanError.ErrorType.ALREADY_STARTED),
+            Pair(ScanCallback.SCAN_FAILED_APPLICATION_REGISTRATION_FAILED, OnScanError.ErrorType.APPLICATION_REGISTRATION_FAILED),
+            Pair(ScanCallback.SCAN_FAILED_FEATURE_UNSUPPORTED, OnScanError.ErrorType.FEATURE_UNSUPPORTED),
+            Pair(ScanCallback.SCAN_FAILED_INTERNAL_ERROR, OnScanError.ErrorType.INTERNAL_ERROR)
     )
 
     private var btAdapter: BluetoothAdapter? = null

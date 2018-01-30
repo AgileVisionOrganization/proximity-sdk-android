@@ -10,7 +10,7 @@ import java.util.*
 /**
  * @author Andrew Koidan, AgileVision, 25.01.18.
  */
-class CoordinateCalculator (
+class CoordinateCalculator(
         var beaconsCorners: Map<Beacon, XYPoint>,
         var coordTracker: CoordinateTracker,
         var cacheTime: Int?,
@@ -22,16 +22,16 @@ class CoordinateCalculator (
     var y: Double? = null
 
     class Holder(var rrsi: Int, var txPower: Int) {
-        var d : Long = Date().time
+        var d: Long = Date().time
     }
 
-    var positions =  beaconsCorners.map { doubleArrayOf(it.value.x, it.value.y) }.toTypedArray();
+    var positions = beaconsCorners.map { doubleArrayOf(it.value.x, it.value.y) }.toTypedArray();
 
-    var distansesCachable: MutableMap<Beacon, LinkedList<Holder>> =  mutableMapOf();
-    var distancesSingle: MutableMap<Beacon, Double> =  mutableMapOf();
+    var distansesCachable: MutableMap<Beacon, LinkedList<Holder>> = mutableMapOf();
+    var distancesSingle: MutableMap<Beacon, Double> = mutableMapOf();
 
     init {
-        beaconsCorners.forEach{distansesCachable.put(it.key, LinkedList())}
+        beaconsCorners.forEach { distansesCachable.put(it.key, LinkedList()) }
     }
 
     override fun onBeaconDistanceFound(beacon: Beacon, rssi: Int, txPower: Int) {
@@ -52,7 +52,7 @@ class CoordinateCalculator (
             if (logs) {
                 val allRssis: String?
                 if (cacheTime != null) {
-                    allRssis = ",all rssi"+ distansesCachable.get(beacon)?.joinToString(transform = { it.rrsi.toString() })
+                    allRssis = ",all rssi" + distansesCachable.get(beacon)?.joinToString(transform = { it.rrsi.toString() })
                 } else {
                     allRssis = ""
                 }

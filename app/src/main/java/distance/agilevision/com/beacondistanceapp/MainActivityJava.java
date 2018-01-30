@@ -1,9 +1,5 @@
 package distance.agilevision.com.beacondistanceapp;
 
-/**
- * @author Andrew Koidan, AgileVision, 29.01.18.
- */
-
 
 import android.Manifest;
 import android.content.Context;
@@ -13,10 +9,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.agilevision.navigator.Beacon;
 import com.agilevision.navigator.BeaconsSearcher;
@@ -48,20 +42,8 @@ public class MainActivityJava extends AppCompatActivity implements OnScanError, 
   @BindView(R.id.beacon_c) TextView bc;
   @BindView(R.id.beacon_d) TextView bd;
   @BindView(R.id.beacon_scan_btn) Button btnScan;
-
-
-  class Holder {
-    Holder(TextView tv, String text) {
-      this.tv = tv;
-      this.text = text;
-    }
-
-    private TextView tv;
-    private String text;
-  }
-
-  private Map<Beacon, Holder> mm = new HashMap<>();
   BeaconsSearcher bs;
+  private Map<Beacon, Holder> mm = new HashMap<>();
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -126,7 +108,6 @@ public class MainActivityJava extends AppCompatActivity implements OnScanError, 
     mm.get(i).tv.setText(getString(R.string.beacon_distance, mm.get(i).text, current, medium));
   }
 
-
   private Boolean isPermissionGranted(Context c, String... permissions) {
     Boolean granted = true;
     for (String permission : permissions) {
@@ -154,5 +135,14 @@ public class MainActivityJava extends AppCompatActivity implements OnScanError, 
             Manifest.permission.BLUETOOTH
         },
         444);
+  }
+
+  class Holder {
+    private TextView tv;
+    private String text;
+    Holder(TextView tv, String text) {
+      this.tv = tv;
+      this.text = text;
+    }
   }
 }

@@ -1,5 +1,4 @@
-package distance.agilevision.com.beacondistanceapp;
-
+package io.agilevision.proximity.indoor.demo;
 
 import android.Manifest;
 import android.content.Context;

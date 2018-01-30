@@ -1,9 +1,8 @@
-package distance.agilevision.com.beacondistanceapp
+package io.agilevision.proximity.indoor
 
 import com.lemmingapex.trilateration.NonLinearLeastSquaresSolver
 import com.lemmingapex.trilateration.TrilaterationFunction
 import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer
-import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**

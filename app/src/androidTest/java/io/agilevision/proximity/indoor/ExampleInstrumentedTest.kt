@@ -1,4 +1,4 @@
-package distance.agilevision.com.beacondistanceapp
+package io.agilevision.proximity.indoor
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4

@@ -1,4 +1,4 @@
-package distance.agilevision.com.beacondistanceapp
+package io.agilevision.proximity.indoor.demo
 
 import android.Manifest
 import android.content.Context
@@ -54,7 +54,6 @@ class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScanError,
                 .build()
         bs = BeaconsSearcher(this, cc)
         onScanClick(null)
-
 
     }
 

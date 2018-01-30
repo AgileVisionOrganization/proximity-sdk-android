@@ -1,16 +1,21 @@
 # Navigation lib
-This lib allows you to track your coordinate calculated from distances to Bluetooth Low Energy (BLE) devices around. This lib only produces approximate coordinates, since RSSI of same beacon goes up and down all the time on same distance. Also you should note that if there's an obstacle between current device and beacon rssi signal will go down which will increase the distance to the beacon. The recommended amount of beacon is 4. Those beacon should be placed on the perimeter.
+This lib allows you to track your coordinate calculated from distances to Bluetooth Low Energy (BLE) devices around. This lib only produces approximate coordinates, since RSSI of same beacon goes up and down all the time on same distance. Also you should note that if there's an obstacle between current device and beacon, rssi signal will go down which will increase the distance to the beacon and this can be a cause to wrong coordinates in result. 
  
- It's also recommended to configure beacon's txPower constant for each device before using it. It can be done wit BeaconSet+. You need to measure beacon's rssi at 1m and sum it with 41 where 41 is typical signal loss at 1 meter. This value should be set as TxPower. For example if rssi at 1 meter is -56db, txPower should be set to -15. 
+ 
+ To track coordinates you want to place at least 3 beacon around (not in single line). It's better to place beacon on the perimeter. You also want to configure beacon's txPower constant for each device before using it. This is not necessary but will drastically increase the accuracy. The configuration can be done via BeaconSet+. The configuration scenary is the following:
+  - You need to measure beacon's rssi at 1m
+  - This rssi should be sumed with 41 where 41 is typical signal loss at 1 meter.
+  - THe resulting value should be set as TxPower.
+   
+ For example if rssi at 1 meter is -56db, txPower should be set to -15. 
 
 ## Demos
 Check  [MainActivity.kt](app/src/main/java/distance/agilevision/com/beacondistanceapp/MainActivity.kt) and [MainActivityJava.java](app/src/main/java/distance/agilevision/com/beacondistanceapp/MainActivityJava.java) as examples. 
 
 ## Minimal code usage
+The lib contains of 2 main classes `BeaconsSearcher` and `CoordinateCalculator`. `BeaconsSearcher` notifies whenever it finds a new ble device. `CoordinateCalculator` is registered to beaconSearcher as accepts BLE device and if it matches the registered one - calculates the current coordinates based on distance to it.
 
-The lib contains of 2 main classes `BeaconsSearcher` that fires a callback whenever it finds a new ble device and `CoordinateCalculator` that accept ble device and if it matches the registered one - calculates the current coordinates based on distance to it.
-
-So for the minimal use you want to register beacons with [x,y] position using `.addBeacon(new Beacon("00112233445566778899", "000000000000"), new XYPoint(0.0, 0.0))` where `00112233445566778899` is **namespace** of the beacon and `000000000000` is **instance**. `0.0` and `0.0` is [x,y] position on the map for the beacon.
+So for the minimal use you want to register beacons with **[x,y]** position using `.addBeacon(new Beacon("00112233445566778899", "000000000000"), new XYPoint(0.0, 0.0))` where `00112233445566778899` is **namespace** of the beacon and `000000000000` is **instance**. `0.0` and `0.0` is [x,y] position on the map for the beacon.
 
 ```
     CoordinateCalculator cc = new CoordinateBuilder()
@@ -35,9 +40,8 @@ So for the minimal use you want to register beacons with [x,y] position using `.
 
 ``` 
 
-
 ## Bluetooth permissions
-Permissions are already specified in library's [AndroidManifest](navigator/src/main/AndroidManifest.xml). This manifest will be merged with yours when apk is compiled. However for android6.0+ you also need to ask for bluetooth permissions at runtime:
+Permissions are already specified in library's [AndroidManifest](navigator/src/main/AndroidManifest.xml). This manifest will be merged with yours when apk is assembled. However for android6.0+ you also should ask for bluetooth permissions at runtime:
 
 ```
 if (!isBluetoothGranted()) {
@@ -82,7 +86,8 @@ Permissions methods:
 
 
 ## Enable logs
-If your distance isn't accurate you can enable logs with   `builder.enableLogs()`
+You can enable library logs with `builder.enableLogs()`
+
 ## Track change of distance to each beacon
 ```
 builder
@@ -93,6 +98,7 @@ builder
     }
 })
 ```
+
 ## Cache beacons distance
 By default library saves beacon rssi and then calculates the distance based on average rssi to each beacon. By default this time is 4 seconds. You can turn this feature off with `builder.cacheTime(null)` or configure this time with same method.
 

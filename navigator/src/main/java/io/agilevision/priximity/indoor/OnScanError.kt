@@ -1,4 +1,4 @@
-package com.agilevision.navigator
+package io.agilevision.priximity.indoor
 
 /**
  * @author Andrew Koidan, AgileVision, 25.01.18.

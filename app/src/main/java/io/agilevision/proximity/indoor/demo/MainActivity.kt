@@ -14,9 +14,9 @@ import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
-import com.agilevision.navigator.*
+import io.agilevision.priximity.indoor.*
 
-class MainActivity : AppCompatActivity(), com.agilevision.navigator.OnScanError, CoordinateTracker, DistanceTracker {
+class MainActivity : AppCompatActivity(), OnScanError, CoordinateTracker, DistanceTracker {
 
     @BindView(R.id.text_x) lateinit var tx: TextView
     @BindView(R.id.text_y) lateinit var ty: TextView

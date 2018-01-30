@@ -1,4 +1,4 @@
-package com.agilevision.navigator
+package io.agilevision.priximity.indoor
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
@@ -97,9 +97,9 @@ class BeaconsSearcher(private val callback: OnScanError, private val onBeaconFou
     override fun onScanResult(callbackType: Int, result: ScanResult) {
         val scanRecord = result.scanRecord
         if (scanRecord != null) {
-            val serviceData = scanRecord.getServiceData(BeaconsSearcher.EDDYSTONE_SERVICE_UUID)
+            val serviceData = scanRecord.getServiceData(EDDYSTONE_SERVICE_UUID)
             if (serviceData != null) {
-                if (serviceData[0] == BeaconsSearcher.EDDYSTONE_UID_FRAME_TYPE) {
+                if (serviceData[0] == EDDYSTONE_UID_FRAME_TYPE) {
                     val nameSpace = toHexString(Arrays.copyOfRange(serviceData, NID_START, NID_END))
                     val instance = toHexString(Arrays.copyOfRange(serviceData, BID_START, BID_END))
                     val txPowerLevel = serviceData[TX_POWER_OFFSET].toInt()

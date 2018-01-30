@@ -1,4 +1,4 @@
-package com.agilevision.navigator
+package io.agilevision.priximity.indoor
 
 import android.util.Log
 import com.lemmingapex.trilateration.NonLinearLeastSquaresSolver

@@ -1,2 +1,4 @@
-Andrew Koidan
-Volodymyr Rudyi
+# Project Contributors
+
+* Andrew Koidan
+* Volodymyr Rudyi

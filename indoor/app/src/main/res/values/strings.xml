@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BeaconDistanceApp</string>
+    <string name="x_coordd">X: %1$.2f</string>
+    <string name="y_coord">Y: %1$.2f</string>
+    <string name="beacon_distance">%1$s: curr: %2$.2f, med: %3$.2f</string>
+    <string name="err_scan">Error scanning: %1$s</string>
+</resources>

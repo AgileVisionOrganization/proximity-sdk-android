@@ -1,4 +1,4 @@
-package io.agilevision.priximity.indoor
+package io.agilevision.proximity.indoor
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter

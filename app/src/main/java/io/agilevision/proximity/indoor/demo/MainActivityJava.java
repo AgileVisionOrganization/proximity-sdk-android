@@ -11,14 +11,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.TextView;
 
-import io.agilevision.priximity.indoor.Beacon;
-import io.agilevision.priximity.indoor.BeaconsSearcher;
-import io.agilevision.priximity.indoor.CoordinateBuilder;
-import io.agilevision.priximity.indoor.CoordinateCalculator;
-import io.agilevision.priximity.indoor.CoordinateTracker;
-import io.agilevision.priximity.indoor.DistanceTracker;
-import io.agilevision.priximity.indoor.OnScanError;
-import io.agilevision.priximity.indoor.XYPoint;
+import io.agilevision.proximity.indoor.Beacon;
+import io.agilevision.proximity.indoor.BeaconsSearcher;
+import io.agilevision.proximity.indoor.CoordinateBuilder;
+import io.agilevision.proximity.indoor.CoordinateCalculator;
+import io.agilevision.proximity.indoor.CoordinateTracker;
+import io.agilevision.proximity.indoor.DistanceTracker;
+import io.agilevision.proximity.indoor.OnScanError;
+import io.agilevision.proximity.indoor.XYPoint;
 
 import org.jetbrains.annotations.NotNull;
 

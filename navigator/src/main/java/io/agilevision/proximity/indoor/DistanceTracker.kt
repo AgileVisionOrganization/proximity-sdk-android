@@ -1,4 +1,4 @@
-package io.agilevision.priximity.indoor
+package io.agilevision.proximity.indoor
 
 /**
  * @author Andrew Koidan, AgileVision, 29.01.18.

@@ -14,7 +14,7 @@ import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
-import io.agilevision.priximity.indoor.*
+import io.agilevision.proximity.indoor.*
 
 class MainActivity : AppCompatActivity(), OnScanError, CoordinateTracker, DistanceTracker {
 

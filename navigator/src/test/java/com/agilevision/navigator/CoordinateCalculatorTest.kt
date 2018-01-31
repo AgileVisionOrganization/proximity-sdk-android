@@ -1,9 +1,9 @@
 package com.agilevision.navigator
 
-import io.agilevision.priximity.indoor.Beacon
-import io.agilevision.priximity.indoor.CoordinateBuilder
-import io.agilevision.priximity.indoor.CoordinateTracker
-import io.agilevision.priximity.indoor.XYPoint
+import io.agilevision.proximity.indoor.Beacon
+import io.agilevision.proximity.indoor.CoordinateBuilder
+import io.agilevision.proximity.indoor.CoordinateTracker
+import io.agilevision.proximity.indoor.XYPoint
 import junit.framework.Assert
 import org.hamcrest.number.IsCloseTo
 import org.junit.Assert.assertThat

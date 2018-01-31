@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="15dp"
+    tools:context="io.agilevision.proximity.indoor.demo.MainActivity">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="X: not enough beacons found"
+        android:id="@+id/text_x"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Y: not enough beacons found"
+        android:id="@+id/text_y"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:text="Start Scan"
+        android:id="@+id/beacon_scan_btn"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:visibility="gone"
+        android:layout_marginTop="10px"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Initializing"
+        android:id="@+id/text_error"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_marginTop="10px"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="A: searching..."
+        android:id="@+id/beacon_a"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:layout_marginTop="10px"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="B: searching..."
+        android:id="@+id/beacon_b"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:layout_marginTop="10px"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="C: searching..."
+        android:id="@+id/beacon_c"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_marginTop="10px"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="D: searching..."
+        android:id="@+id/beacon_d"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</LinearLayout>
